@@ -1,1 +1,4 @@
 .vscode 
+myenv/
+test.py
+.DS_Store
