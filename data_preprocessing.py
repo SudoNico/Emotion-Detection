@@ -5,68 +5,69 @@ from nltk.corpus import stopwords
 import spacy 
 import language_tool_python
 import re 
+import json
 
 
-# sample text
-s = 'Er beschlos, den Rechtssteit mit dem Kloster einzstellen und seine Ansprüche aufzugeben. Holzfäller- und Fischereirechte auf einmal. Er war dazu umso bereitwilliger, weil die Rechte war viel weniger wertvoll geworden, und er hatte tatsächlich eine vage Vorstellung davon, wo der Wald und der Fluss in Frage kamen. Schau dir diese Webseite an: https://www.example.com und diese auch: http://test.com'
+# loading the JSON file
+with open('file.json', 'r', encoding='utf-8') as file:
+    data = json.load(file)
 
-# spelling correction, source: ChatGPT
-tool = language_tool_python.LanguageTool('de-DE')
-# finding errors in the text
-matches = tool.check(s)
-# correcting the errors 
-corrected_text = language_tool_python.utils.correct(s, matches)
+results = []
+
+# the text is in a field called 'Text' in the JSON
+for entry in data: 
+    s = entry['Text'] 
+
+    # spelling correction, source: ChatGPT
+    tool = language_tool_python.LanguageTool('de-DE')
+    # finding errors in the text
+    matches = tool.check(s)
+    # correcting the errors 
+    corrected_text = language_tool_python.utils.correct(s, matches)
 
 
-# url to [link], source: ChatGPT
-def url_to_link(text):
-    # reg expression for URL
-    url_pattern = r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+    # url to [link], source: ChatGPT
+    def url_to_link(text):
+     # reg expression for URL
+        url_pattern = r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
     
-    # replacing the URL with "[Link]"
-    result = re.sub(url_pattern, '[Link]', text)
-    return result
+     # replacing the URL with "[Link]"
+        result = re.sub(url_pattern, 'Link', text)
+        return result
 
-no_url = url_to_link(corrected_text)
+    no_url = url_to_link(corrected_text)
 
-# tokenizing the data into seperate words 
-tokens = word_tokenize(no_url)
-wordpunct_tokenize(no_url)
+    # tokenizing the data into seperate words 
+    tokens = word_tokenize(no_url)
+    wordpunct_tokenize(no_url)
 
-# removing stop words from the tokenized text
-stopwords = set(stopwords.words('german'))
-filtered_text = []
+    # removing stop words from the tokenized text
+    nltk_stopwords = set(stopwords.words('german'))
+    filtered_text = []
  
-for w in tokens:
-    if w not in stopwords:
-        filtered_text.append(w)
+    for w in tokens:
+        if w not in nltk_stopwords:
+            filtered_text.append(w)
         
 
-# lemmatizing the text, source: ChatGPT 
-lemmatizer = spacy.load("de_core_news_sm")
-lemmatized_text = []
+    # lemmatizing the text, source: ChatGPT 
+    lemmatizer = spacy.load("de_core_news_sm")
+    lemmatized_text = []
 
-for w in filtered_text:
-    doc = lemmatizer(w)
-    lemmatized_text.append(doc[0].lemma_)
+    for w in filtered_text:
+        doc = lemmatizer(w)
+        lemmatized_text.append(doc[0].lemma_)
     
-# all lower characters 
-lower_char = []
+    # all lower characters 
+    lower_char = [w.lower() for w in lemmatized_text]
+    
+    results.append(lower_char)
+        
+ 
+# saving the results in a new file    
+with open('processed_results.txt', 'w', encoding='utf-8') as f:
+    for result in results:
+        f.write(' '.join(result) + '\n')  # Join the words with spaces and write to file
 
-for w in lemmatized_text:
-    lower_char.append(w.lower())
 
 
-#print(s)
-#print()
-#print(corrected_text)
-#print()
-#print(no_url)
-#print()
-#print(tokens)
-#print()
-#print(filtered_text)
-#print()
-#print(lemmatized_text)
-#print()
-#print(lower_char)
