@@ -14,6 +14,7 @@ from sklearn import decomposition, ensemble
 
 # naive bayes implementation
 from bayesian import Bayes
+<<<<<<< HEAD
  
 
 
@@ -29,3 +30,5 @@ from ekphrasis.classes.spellcorrect import SpellCorrector
 import spacy
 #It features state-of-the-art speed and neural network models for tagging, parsing, named entity recognition, text classification and more
 
+=======
+>>>>>>> dd053ed (added stuff)
