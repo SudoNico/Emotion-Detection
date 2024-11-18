@@ -1,0 +1,9 @@
+Zuerst nach dem text ein Komma (,)
+dann eines der folgenden Einfügen:
+"Emotion": yes,
+"Emotion": no,
+
+dann jeweils die Emotionen einfügen: 
+"Emotion-Sub": "anger,fear,suprise,sadness,joy,disgust,envy,jealousy,other"
+wenn keine dann:
+"Emotion-Sub": ""
