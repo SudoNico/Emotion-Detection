@@ -7,3 +7,17 @@ dann jeweils die Emotionen einfügen:
 "Emotion-Sub": "anger,fear,suprise,sadness,joy,disgust,envy,jealousy,other"
 wenn keine dann:
 "Emotion-Sub": ""
+
+Beispiel:
+
+{
+
+    "TweetID": 1344354232682618881,
+
+    "Text": "Wenige Tage nach dem Impfstart in Deutschland gibt es reichlich Unklarheiten. Israel hat sich hingegen bereits zum »Corona-Impfweltmeister« erklärt. Warum läuft die Immunisierung in einzelnen Ländern so unterschiedlich? https://t.co/9aYZ3FRH84",
+
+    "Emotion": yes,
+
+    "Emotion-Sub": "anger,disgust"
+
+  },
