@@ -4,7 +4,8 @@
 
     "Text": "Wir solidarisieren uns mit der Jüdischen Gemeinde Düsseldorf und verurteilen die antisemitischen Angriffe von \"Palästina spricht\", die die Gemeinde delegitimieren und Israel dämonisieren. Wir wünschen eine gute und erfolgreiche Veranstaltung heute Abend mit der IDF Band.",
 
-    "Emotion": "no",
+    "Emotion": no,
+    "Emotion-Sub": "",
     
 
   },
@@ -14,6 +15,9 @@
     "TweetID": 1536858224028176384,
 
     "Text": "#Ukraine/Charkiw. Mit den Angriffen auf die Stadt zerstört Ru.nun auch die jüdischen Gemeinden der Stadt. Die Jungen kämpfen als jüdisches Bataillon. Die Alten sind in Dt. oder Israel. Hier versteht niemand, warum Dt. die historische Aufgabe des “Nie wieder” nicht annimmt. https://t.co/Cv9L3vLIt4"
+
+    "Emotion": yes,
+    "Emotion-Sub": "anger",
 
   },
 
