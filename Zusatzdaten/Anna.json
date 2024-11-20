@@ -232,7 +232,11 @@
 
     "TweetID": 1534225715482304514,
 
-    "Text": "@Zain62986498 @letmerant3 @Spherena @jomey60 @PapkeGerhard @ZDFheute I - r - a - k \\n\\nIm Irak ist es künftig verboten, Kontakt zu Menschen aus Israel zu haben. Selbst ein Chat mit Freunden oder Familie kann mit dem Tod bestraft werden."
+    "Text": "@Zain62986498 @letmerant3 @Spherena @jomey60 @PapkeGerhard @ZDFheute I - r - a - k \\n\\nIm Irak ist es künftig verboten, Kontakt zu Menschen aus Israel zu haben. Selbst ein Chat mit Freunden oder Familie kann mit dem Tod bestraft werden.",
+
+    "Emotion": yes,
+
+    "Emotion-Sub": "surprise,anger,fear,sadness"
 
   },
 
@@ -240,7 +244,11 @@
 
     "TweetID": 1534218411198259202,
 
-    "Text": "@welt Lass mich raten. Israel arbeitet nicht mit Antisemiten wie die Grünen und die SPD zusammen?"
+    "Text": "@welt Lass mich raten. Israel arbeitet nicht mit Antisemiten wie die Grünen und die SPD zusammen?",
+
+    "Emotion": yes,
+
+    "Emotion-Sub": "other"
 
   },
 
@@ -248,7 +256,11 @@
 
     "TweetID": 1533897789666729991,
 
-    "Text": "\"Kein #Gas für Deutschland\": Superbrain #Habeck blitzt in #Israel ab!\\nhttps://t.co/lExNW6rtzK"
+    "Text": "\"Kein #Gas für Deutschland\": Superbrain #Habeck blitzt in #Israel ab!\\nhttps://t.co/lExNW6rtzK",
+
+    "Emotion": yes,
+
+    "Emotion-Sub": "other"
 
   },
 
@@ -256,7 +268,11 @@
 
     "TweetID": 1533855805602160641,
 
-    "Text": "Diese Woche steht endlich meine erste, große #Nahost-Reise als Abgeordneten an. Ich werde ich in #Israel, den Palästinensischen Autonomiegebieten, #AbuDhabi, #Qatar &amp; #Libanon sein. Der Fokus der Reise liegt auf Frauenrechte, Friedensprojekte &amp;Extremismus(-prävention)."
+    "Text": "Diese Woche steht endlich meine erste, große #Nahost-Reise als Abgeordneten an. Ich werde ich in #Israel, den Palästinensischen Autonomiegebieten, #AbuDhabi, #Qatar &amp; #Libanon sein. Der Fokus der Reise liegt auf Frauenrechte, Friedensprojekte &amp;Extremismus(-prävention).",
+
+    "Emotion": yes,
+
+    "Emotion-Sub": "joy"
 
   },
 
