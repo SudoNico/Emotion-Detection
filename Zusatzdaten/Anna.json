@@ -6,7 +6,7 @@
 
     "Emotion": no,
     
-    "Emotion-Sub": "",
+    "Emotion-Sub": ""
     
 
   },
@@ -19,7 +19,7 @@
 
     "Emotion": yes,
     
-    "Emotion-Sub": "anger",
+    "Emotion-Sub": "anger"
 
   },
 
@@ -31,7 +31,7 @@
 
     "Emotion": no,
 
-    "Emotion-Sub": "",
+    "Emotion-Sub": ""
 
   },
 
@@ -39,7 +39,11 @@
 
     "TweetID": 1536698867131076608,
 
-    "Text": "@Gert_Woellmann @Bundeskanzler Nein.\\nDer BK handelt korrekt, kommt seiner Verantwortung für das Land nach. \\nDer Umgang mit Russland wird zum Desaster. Sanktionen/Waffen. \\n\\nHaben Sie mitbekommen, dass Israel den Flughafen von Damaskus vor 2 Tagen zerbombt hat?\\nTürkei beansprucht 30km breite Zone im Irak."
+    "Text": "@Gert_Woellmann @Bundeskanzler Nein.\\nDer BK handelt korrekt, kommt seiner Verantwortung für das Land nach. \\nDer Umgang mit Russland wird zum Desaster. Sanktionen/Waffen. \\n\\nHaben Sie mitbekommen, dass Israel den Flughafen von Damaskus vor 2 Tagen zerbombt hat?\\nTürkei beansprucht 30km breite Zone im Irak.",
+
+    "Emotion": yes,
+
+    "Emotion-Sub": "fear"
 
   },
 
@@ -47,7 +51,11 @@
 
     "TweetID": 1536625639305904130,
 
-    "Text": "Die von den USA initiierte Erklärung greift die der Untersuchungskommission übertragenen Befugnisse scharf an und bezeichnet ihre Einrichtung als weiteres Beispiel für die unverhältnismäßige Fokussierung des Rates auf Israel: eine Fokussierung, die beendet werden muss.\\n\\n2/3"
+    "Text": "Die von den USA initiierte Erklärung greift die der Untersuchungskommission übertragenen Befugnisse scharf an und bezeichnet ihre Einrichtung als weiteres Beispiel für die unverhältnismäßige Fokussierung des Rates auf Israel: eine Fokussierung, die beendet werden muss.\\n\\n2/3",
+
+    "Emotion": no,
+
+    "Emotion-Sub": ""
 
   },
 
