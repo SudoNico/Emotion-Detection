@@ -2,3 +2,10 @@
 myenv/
 test.py
 .DS_Store
+processed_results.txt
+stacking_classifier_1.pkl
+stacking_classifier_2.pkl
+training.py
+voting_classifier.pkl
+word2vec_tweets.model
+BitteLabeln2.json
