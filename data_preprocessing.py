@@ -5,11 +5,58 @@ from nltk.corpus import stopwords
 import spacy 
 import language_tool_python
 import re 
+import emoji
 import json
 
 
+# spelling correction
+def spellingCorrection(text): 
+    tool = language_tool_python.LanguageTool('de-DE')
+    # finding errors in the text
+    matches = tool.check(text)
+    # correcting the errors 
+    corrected_text = language_tool_python.utils.correct(text, matches)
+    return corrected_text
+
+# removing punctuation from the text 
+def removeText(text):
+    without = re.sub(r"[^\w\s?!]", "", text)
+    return without
+
+# removing emojicons from the text 
+def removeEmoji(text):
+    return emoji.replace_emoji(text, replace= 'HierEmojiEntfernt' )
+
+# url to "Link"
+def urlToLink(text):
+    url_pattern = r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'   # reg expression for URL
+    # replacing the URL with "Link"
+    result = re.sub(url_pattern, "Link", text)
+    return result
+
+# removing stop words from the tokenized text
+def removeStopwords():
+    nltk_stopwords = set(stopwords.words('german'))
+    filtered_text = []
+ 
+    for w in tokens:
+        if w not in nltk_stopwords:
+            filtered_text.append(w)
+    return filtered_text
+
+# lemmatizing the text, source: ChatGPT 
+def lemmatizingText():
+    lemmatizer = spacy.load("de_core_news_sm")
+    lemmatized_text = []
+
+    for w in filtered_text:
+        doc = lemmatizer(w)
+        lemmatized_text.append(doc[0].lemma_)
+    return lemmatized_text
+
+
 # loading the JSON file
-with open('file.json', 'r', encoding='utf-8') as file:
+with open('/Users/chanti/Desktop/5. Semester/Softwareprojekt/Code/Emotion-Detection/Zusatzdaten/BitteLabeln2.json', 'r', encoding='utf-8') as file:
     data = json.load(file)
 
 results = []
@@ -18,54 +65,30 @@ results = []
 for entry in data: 
     s = entry['Text'] 
 
-    # spelling correction, source: ChatGPT
-    tool = language_tool_python.LanguageTool('de-DE')
-    # finding errors in the text
-    matches = tool.check(s)
-    # correcting the errors 
-    corrected_text = language_tool_python.utils.correct(s, matches)
-
-
-    # url to [link], source: ChatGPT
-    def url_to_link(text):
-     # reg expression for URL
-        url_pattern = r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+    corrected_text = spellingCorrection(s)
     
-     # replacing the URL with "[Link]"
-        result = re.sub(url_pattern, 'Link', text)
-        return result
-
-    no_url = url_to_link(corrected_text)
+    no_url = urlToLink(corrected_text)
+    
+    no_punctuation = removeText(no_url)
+    
+    no_emojis = removeEmoji(no_punctuation)
 
     # tokenizing the data into seperate words 
-    tokens = word_tokenize(no_url)
-    wordpunct_tokenize(no_url)
+    tokens = word_tokenize(no_emojis)
+    wordpunct_tokenize(no_emojis)
 
-    # removing stop words from the tokenized text
-    nltk_stopwords = set(stopwords.words('german'))
-    filtered_text = []
- 
-    for w in tokens:
-        if w not in nltk_stopwords:
-            filtered_text.append(w)
-        
+    filtered_text = removeStopwords()
 
-    # lemmatizing the text, source: ChatGPT 
-    lemmatizer = spacy.load("de_core_news_sm")
-    lemmatized_text = []
-
-    for w in filtered_text:
-        doc = lemmatizer(w)
-        lemmatized_text.append(doc[0].lemma_)
+    lemmatized_text = lemmatizingText()
     
     # all lower characters 
     lower_char = [w.lower() for w in lemmatized_text]
-    
     results.append(lower_char)
         
+#print(lower_char)
  
 # saving the results in a new file    
-with open('processed_results.txt', 'w', encoding='utf-8') as f:
+with open('processed_results_2.txt', 'w', encoding='utf-8') as f:
     for result in results:
         f.write(' '.join(result) + '\n')  # Join the words with spaces and write to file
 
