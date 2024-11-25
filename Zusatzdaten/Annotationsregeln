@@ -1,23 +1,12 @@
-Zuerst nach dem text ein Komma (,)
-dann eines der folgenden Einfügen:
-"Emotion": yes,
-"Emotion": no,
+Anntation wie in ems.csv
+yes/no nicht nötig
+nur hat label oder nicht (TRUE/FALSE)
 
-dann jeweils die Emotionen einfügen: 
-"Emotion-Sub": "anger,fear,suprise,sadness,joy,disgust,envy,jealousy,other"
-wenn keine dann:
-"Emotion-Sub": ""
+Aufbau der Datei:
+id,description,anger,fear,surprise,sadness,joy,disgust,envy,jealousy,other
 
-Beispiel:
+Bsp:
+1.27464892091699E+018,"Hass ist keine Emotion",TRUE,FALSE,FALSE,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE
 
-{
-
-    "TweetID": 1344354232682618881,
-
-    "Text": "Wenige Tage nach dem Impfstart in Deutschland gibt es reichlich Unklarheiten. Israel hat sich hingegen bereits zum »Corona-Impfweltmeister« erklärt. Warum läuft die Immunisierung in einzelnen Ländern so unterschiedlich? https://t.co/9aYZ3FRH84",
-
-    "Emotion": yes,
-
-    "Emotion-Sub": "anger,disgust"
-
-  },
+Tip:
+Datei Downloaden und mit Bsp Excel oder LibreOffice Calc als csv Tabelle öffnen
