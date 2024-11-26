@@ -6,7 +6,7 @@ import spacy
 import language_tool_python
 import re 
 import emoji
-import json
+import csv
 
 
 # spelling correction
@@ -20,7 +20,7 @@ def spellingCorrection(text):
 
 # removing punctuation from the text 
 def removeText(text):
-    without = re.sub(r"[^\w\s?!]", "", text)
+    without = re.sub(r"[^\w\s?!]", "", text) 
     return without
 
 # removing emojicons from the text 
@@ -55,15 +55,14 @@ def lemmatizingText():
     return lemmatized_text
 
 
-# loading the JSON file
-with open('/Users/chanti/Desktop/5. Semester/Softwareprojekt/Code/Emotion-Detection/Zusatzdaten/BitteLabeln2.json', 'r', encoding='utf-8') as file:
-    data = json.load(file)
+# loading the csv file
+data = pd.read_csv('/Users/chanti/Desktop/5. Semester/Softwareprojekt/Code/Emotion-Detection/Annotierte Tweets/emo2.csv', delimiter=';' ,encoding='utf-8')
 
 results = []
 
-# the text is in a field called 'Text' in the JSON
-for entry in data: 
-    s = entry['Text'] 
+
+for index, row in data.iterrows(): 
+    s = row['description']
 
     corrected_text = spellingCorrection(s)
     
