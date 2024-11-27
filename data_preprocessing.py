@@ -20,12 +20,12 @@ def spellingCorrection(text):
 
 # removing punctuation from the text 
 def removeText(text):
-    without = re.sub(r"[^\w\s?!]", "", text) 
+    without = re.sub(r"[^\w\s]", "", text) # ? und ! auch entfernt, da ansonsten "--" eingefügt wird 
     return without
 
 # removing emojicons from the text 
 def removeEmoji(text):
-    return emoji.replace_emoji(text, replace= 'HierEmojiEntfernt' )
+    return emoji.replace_emoji(text, replace= 'HierEmojiEntfernt')
 
 # url to "Link"
 def urlToLink(text):
@@ -45,8 +45,8 @@ def removeStopwords():
     return filtered_text
 
 # lemmatizing the text, source: ChatGPT 
+lemmatizer = spacy.load("de_core_news_sm")
 def lemmatizingText():
-    lemmatizer = spacy.load("de_core_news_sm")
     lemmatized_text = []
 
     for w in filtered_text:
@@ -54,12 +54,12 @@ def lemmatizingText():
         lemmatized_text.append(doc[0].lemma_)
     return lemmatized_text
 
+def writingFile(text):
+    with open('processed_results_2.txt', 'a', encoding='utf-8') as f:
+        f.write(' '.join(text) + '\n')  # Join the words with spaces and write to file
 
 # loading the csv file
 data = pd.read_csv('/Users/chanti/Desktop/5. Semester/Softwareprojekt/Code/Emotion-Detection/Annotierte Tweets/emo2.csv', delimiter=';' ,encoding='utf-8')
-
-results = []
-
 
 for index, row in data.iterrows(): 
     s = row['description']
@@ -82,14 +82,10 @@ for index, row in data.iterrows():
     
     # all lower characters 
     lower_char = [w.lower() for w in lemmatized_text]
-    results.append(lower_char)
+    
+    writingFile(lower_char)
         
-#print(lower_char)
- 
-# saving the results in a new file    
-with open('processed_results_2.txt', 'w', encoding='utf-8') as f:
-    for result in results:
-        f.write(' '.join(result) + '\n')  # Join the words with spaces and write to file
 
+ 
 
 
