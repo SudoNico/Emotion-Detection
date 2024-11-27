@@ -9,3 +9,10 @@ training.py
 voting_classifier.pkl
 word2vec_tweets.model
 BitteLabeln2.json
+BitteLabeln2_1.csv
+emo2.csv
+processed_results_2.txt
+json_to_csv.py
+features.py
+bayes_2.py
+
