@@ -10,13 +10,17 @@ import csv
 
 
 # spelling correction
-def spellingCorrection(text): 
-    tool = language_tool_python.LanguageTool('de-DE')
+tool = language_tool_python.LanguageTool('de-DE')
+def spellingCorrection(text, tool): 
     # finding errors in the text
     matches = tool.check(text)
     # correcting the errors 
     corrected_text = language_tool_python.utils.correct(text, matches)
     return corrected_text
+
+# closing LanguageTool at the end
+def closeLanguageTool(tool):
+    tool.close()
 
 # removing punctuation from the text 
 def removeText(text):
@@ -60,32 +64,33 @@ def writingFile(text):
 
 # loading the csv file
 data = pd.read_csv('/Users/chanti/Desktop/5. Semester/Softwareprojekt/Code/Emotion-Detection/Annotierte Tweets/emo2.csv', delimiter=';' ,encoding='utf-8')
+try: 
+    for index, row in data.iterrows(): 
+        s = row['description']
 
-for index, row in data.iterrows(): 
-    s = row['description']
+        corrected_text = spellingCorrection(s, tool)
+    
+        no_url = urlToLink(corrected_text)
+    
+        no_punctuation = removeText(no_url)
+    
+        no_emojis = removeEmoji(no_punctuation)
 
-    corrected_text = spellingCorrection(s)
-    
-    no_url = urlToLink(corrected_text)
-    
-    no_punctuation = removeText(no_url)
-    
-    no_emojis = removeEmoji(no_punctuation)
+        # tokenizing the data into seperate words 
+        tokens = word_tokenize(no_emojis)
+        wordpunct_tokenize(no_emojis)
 
-    # tokenizing the data into seperate words 
-    tokens = word_tokenize(no_emojis)
-    wordpunct_tokenize(no_emojis)
+        filtered_text = removeStopwords()
 
-    filtered_text = removeStopwords()
-
-    lemmatized_text = lemmatizingText()
+        lemmatized_text = lemmatizingText()
     
-    # all lower characters 
-    lower_char = [w.lower() for w in lemmatized_text]
+        # all lower characters 
+        lower_char = [w.lower() for w in lemmatized_text]
     
-    writingFile(lower_char)
+        writingFile(lower_char)
         
-
+finally: 
+    closeLanguageTool(tool)
  
 
 
