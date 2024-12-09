@@ -24,18 +24,18 @@ def closeLanguageTool(tool):
 
 # removing punctuation from the text 
 def removeText(text):
-    without = re.sub(r"[^\w\s]", "", text) # ? und ! auch entfernt, da ansonsten "--" eingefügt wird 
+    without = re.sub(r"[^\w\s]", "", text) 
     return without
 
 # removing emojicons from the text 
 def removeEmoji(text):
-    return emoji.replace_emoji(text, replace= 'HierEmojiEntfernt')
+    return emoji.replace_emoji(text, replace= ' HierEmojiEntfernt ')
 
 # url to "Link"
 def urlToLink(text):
     url_pattern = r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'   # reg expression for URL
     # replacing the URL with "Link"
-    result = re.sub(url_pattern, "Link", text)
+    result = re.sub(url_pattern, " Link ", text)
     return result
 
 # removing stop words from the tokenized text
@@ -58,16 +58,16 @@ def lemmatizingText():
         lemmatized_text.append(doc[0].lemma_)
     return lemmatized_text
 
-def writingFile(text):
-    with open('processed_results_2.txt', 'a', encoding='utf-8') as f:
-        f.write(' '.join(text) + '\n')  # Join the words with spaces and write to file
+def writingFile(text, label):
+    with open('/Users/chanti/Desktop/5. Semester/Softwareprojekt/Code/Emotion-Detection/intermediate_results/preprocessed_results_2.txt', 'a', encoding='utf-8') as f:
+        f.write(' '.join(text) + ', ' + label + '\n')  # Join the words with spaces and write to file
 
 # loading the csv file
-data = pd.read_csv('/Users/chanti/Desktop/5. Semester/Softwareprojekt/Code/Emotion-Detection/Annotierte Tweets/emo2.csv', delimiter=';' ,encoding='utf-8')
+data = pd.read_csv('/Users/chanti/Desktop/5. Semester/Softwareprojekt/Code/Emotion-Detection/Annotierte Tweets/emo.csv', delimiter=';' ,encoding='utf-8')
 try: 
     for index, row in data.iterrows(): 
         s = row['description']
-
+        l = row['EMO']
         corrected_text = spellingCorrection(s, tool)
     
         no_url = urlToLink(corrected_text)
@@ -87,7 +87,7 @@ try:
         # all lower characters 
         lower_char = [w.lower() for w in lemmatized_text]
     
-        writingFile(lower_char)
+        writingFile(lower_char, l)
         
 finally: 
     closeLanguageTool(tool)
