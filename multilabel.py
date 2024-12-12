@@ -11,8 +11,8 @@ from sklearn.metrics import classification_report
 
 
 # loading the dataset
-csv_path = "C:/Users/chiar/Downloads/dataset.csv"
-df = pd.read_csv(csv_path)
+txt_path = "C:/Users/chiar/Downloads/dataset.txt"
+df = pd.read_csv(txt_path, sep=',') 
 
 # defining the columns for the emotion, we're ignoring the id column since it's not relevant 
 emotion_columns = ['anger', 'fear', 'suprise', 'sadness', 'joy', 'disgust', 'envy', 'jealousy', 'other']
