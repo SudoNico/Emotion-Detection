@@ -10,6 +10,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import classification_report
 
 
+#https://github.com/Hamxea/Multi-label-Classification and ChatGPT for corrections
+
 # loading the dataset
 txt_path = "C:/Users/chiar/Downloads/dataset.txt"
 df = pd.read_csv(txt_path, sep=',') 
