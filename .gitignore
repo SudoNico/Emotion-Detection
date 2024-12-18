@@ -15,4 +15,5 @@ processed_results_2.txt
 json_to_csv.py
 features.py
 bayes_2.py
-
+word2vec.py
+smote.txt
