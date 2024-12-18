@@ -1,3 +1,4 @@
+#https://github.com/Hamxea/Multi-label-Classification and ChatGPT for corrections
 import pandas as pd
 import numpy as np
 import gensim
@@ -19,8 +20,64 @@ import seaborn as sns
 from sklearn.model_selection import KFold, cross_val_score
 from sklearn.metrics import make_scorer, precision_score, recall_score, f1_score
 from sklearn.model_selection import cross_validate
+from sklearn.neighbors import NearestNeighbors
 
-#https://github.com/Hamxea/Multi-label-Classification and ChatGPT for corrections
+
+def strict_ml_smote(X, Y, target_samples, k_neighbors=5):
+    """
+    Erweiterte Multi-Label SMOTE-Implementierung, die sicherstellt,
+    dass alle Labels die Zielanzahl an Samples erreichen.
+    
+    Args:
+        X (array): Features.
+        Y (array): Multi-label binary targets.
+        target_samples (int): Zielanzahl von Samples pro Label.
+        k_neighbors (int): Anzahl der Nachbarn für SMOTE.
+        
+    Returns:
+        X_resampled (array): Resampled Features.
+        Y_resampled (array): Resampled Multi-label binary targets.
+    """
+    X_resampled = list(X)
+    Y_resampled = list(Y)
+
+    # Für jedes Label separat behandeln
+    for label_idx in range(Y.shape[1]):
+        current_count = np.sum(Y[:, label_idx])
+        if current_count >= target_samples:
+            continue  # Überspringen, wenn das Label bereits genug Instanzen hat
+
+        print(f"Bearbeite Label {label_idx+1}: {current_count} -> {target_samples}")
+        
+        # Wähle alle Instanzen, die dieses Label enthalten
+        minority_class_indices = np.where(Y[:, label_idx] == 1)[0]
+        minority_class = X[minority_class_indices]
+        
+        if len(minority_class) < k_neighbors:
+            print(f"Label {label_idx+1} hat zu wenige Instanzen für SMOTE. Überspringe.")
+            continue
+        
+        nn = NearestNeighbors(n_neighbors=k_neighbors).fit(minority_class)
+        
+        # Generiere synthetische Samples
+        num_samples_to_generate = target_samples - current_count
+        for _ in range(num_samples_to_generate):
+            idx = np.random.choice(len(minority_class))
+            neighbors = nn.kneighbors([minority_class[idx]], return_distance=False)[0]
+            neighbor = minority_class[np.random.choice(neighbors[1:])]
+            synthetic_sample = minority_class[idx] + np.random.rand() * (neighbor - minority_class[idx])
+
+            # Neues Sample hinzufügen
+            X_resampled.append(synthetic_sample)
+            new_label = np.zeros(Y.shape[1])  # Leerer Label-Vektor
+            new_label[label_idx] = 1  # Setze das aktuelle Label auf 1
+            Y_resampled.append(new_label)
+    
+    return np.array(X_resampled), np.array(Y_resampled)
+
+
+
+
 
 # loading the dataset
 txt_path = "/Users/chanti/Desktop/5. Semester/Softwareprojekt/Code/Emotion-Detection/intermediate_results/preprocessed_results_multi.txt"
@@ -64,7 +121,8 @@ data.iloc[:, 1:] = data.iloc[:, 1:].replace({'true': 1, 'false': 0}).astype(int)
 
 # Labels extrahieren
 Y = data.iloc[:, 1:].values
-
+Y = np.delete(Y, 7, axis=1)
+Y = np.delete(Y, 6, axis=1)
 
 # using TF-IDF with a limited amount of 5000 most relevant words (to prevent Overfitting)
 vectorizer = TfidfVectorizer(max_features=5000)
@@ -90,7 +148,7 @@ base_model_3 = GaussianNB()
 # Definiere die Anzahl der Folds
 k = 5
 kf = KFold(n_splits=k, shuffle=True, random_state=42)
-
+oversampler = RandomOverSampler(random_state=42)
 # Erstelle das Voting Classifier Modell
 voting_clf = MultiOutputClassifier(VotingClassifier(
     estimators=[
@@ -100,6 +158,12 @@ voting_clf = MultiOutputClassifier(VotingClassifier(
     ],
     voting='soft'
 ))
+# Anzahl der Samples pro Label
+label_counts = np.sum(Y, axis=0)
+print("Anzahl der Instanzen pro Label:")
+for i, count in enumerate(label_counts):
+    print(f"Label {i+1}: {count} Instanzen")
+
 
 # Speichere Metriken
 precision_scores = []
@@ -113,9 +177,13 @@ for train_index, test_index in kf.split(X_combined):
     y_train, y_test = Y[train_index], Y[test_index]
     y_train = y_train.astype(int)
     y_test = y_test.astype(int)
+    target_samples = 2738  # Zielanzahl für jedes Label (basierend auf Label 1)
+
     
+    X_resampled, y_resampled = strict_ml_smote(X_train, y_train, target_samples=target_samples, k_neighbors=5)
     # Trainiere das Modell
-    voting_clf.fit(X_train, y_train)
+    
+    voting_clf.fit(X_resampled, y_resampled)
     y_pred = voting_clf.predict(X_test)
     
     # Berechne die Metriken (macro precision, recall, f1)
@@ -129,6 +197,25 @@ for train_index, test_index in kf.split(X_combined):
     f1_scores.append(f1)
 
     print(f"Fold abgeschlossen - Precision: {precision:.4f}, Recall: {recall:.4f}, F1-Score: {f1:.4f}")
+    
+"""    
+label_counts = np.sum(y_resampled, axis=0)
+for i, count in enumerate(label_counts):
+    print(f"Label {i+1}: {count} Instanzen")
+
+# Prüfe, ob alle Labels gleich oft vertreten sind
+if all(count == target_samples for count in label_counts):
+    print("\nAlle Labels sind jetzt gleichmäßig vertreten!")
+else:
+    print("\nEinige Labels sind noch nicht vollständig ausgeglichen.")
+
+
+label_counts = np.sum(y_resampled, axis=0)
+print("Anzahl der Instanzen pro Label:")
+for i, count in enumerate(label_counts):
+    print(f"Label {i+1}: {count} Instanzen")
+"""
+
 
 # Durchschnittliche Metriken berechnen
 print("\nCross-Validation Ergebnisse:")
@@ -136,6 +223,7 @@ print(f"Durchschnittliche Precision (macro): {np.mean(precision_scores):.4f}")
 print(f"Durchschnittliche Recall (macro): {np.mean(recall_scores):.4f}")
 print(f"Durchschnittliche F1-Score (macro): {np.mean(f1_scores):.4f}")
 
+"""
 # Erstellen des Stacking Classifiers
 estimators = [
     ('rf', base_model_1),
@@ -160,8 +248,11 @@ for train_index, test_index in kf.split(X_combined):
     y_train = y_train.astype(int)
     y_test = y_test.astype(int)
     
-    # Trainiere den StackingClassifier
-    stacking_clf.fit(X_train, y_train)
+    X_resampled, y_resampled = ml_smote(X_train, y_train, k_neighbors=5)
+
+
+    # Trainiere das Modell
+    stacking_clf.fit(X_resampled, y_resampled)
     y_pred = stacking_clf.predict(X_test)
     
     # Berechne die Metriken (macro precision, recall, f1)
@@ -199,3 +290,4 @@ plt.ylabel('Prozentuale Häufigkeit')
 plt.xlabel('Label')
 plt.xticks(rotation=45)
 plt.show()
+"""
