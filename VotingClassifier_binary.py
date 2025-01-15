@@ -47,10 +47,12 @@ nb_classifier = MultinomialNB()
 # Trainiere zusätzlich einen CatBoostClassifier für binäre Klassifikation
 catboost_classifier = CatBoostClassifier(iterations=100, depth=6, learning_rate=0.1, verbose=False)  # <-- CatBoost-Modell für binäre Klassifikation
 
+# base models for VotingClassifier 
 base_model_1 = RandomForestClassifier(n_estimators=100, class_weight='balanced', random_state=42)
 base_model_2 = SVC(kernel='linear', probability=True, class_weight='balanced', random_state=42)
 base_model_3 = MultinomialNB()
 
+# defining the VotingClassifier 
 voting_clf = VotingClassifier(
     estimators=[('rf', base_model_1), ('svc', base_model_2), ('mnb', base_model_3)],
     voting='soft'
@@ -63,15 +65,15 @@ scoring = {
     'f1_macro': make_scorer(f1_score, average='macro')
 }  # We want to evaluate our model using macro precision, macro recall, and macro f1
 
-# Cross-Validation für Naive Bayes
+# Cross-Validation for Naive Bayes
 cv_results_nb = cross_validate(nb_classifier, X_resampled, y_resampled, cv=5, scoring=scoring)
 y_pred_nb = cross_val_predict(nb_classifier, X_resampled, y_resampled, cv=5)
 
-# Cross-Validation für CatBoost
+# Cross-Validation for CatBoost
 cv_results_catboost = cross_validate(catboost_classifier, X_resampled, y_resampled, cv=5, scoring=scoring)  # <-- Cross-Validation für CatBoost
 y_pred_catboost = cross_val_predict(catboost_classifier, X_resampled, y_resampled, cv=5)  # <-- Vorhersagen für CatBoost
 
-# Generating a BoW representation as our feature
+# Generating a TF-IDF representation as our feature
 vectorizer = TfidfVectorizer()
 X = vectorizer.fit_transform(tweets)  # Vectorizing all tweets
 Y = labels
@@ -85,20 +87,20 @@ X_resampled, y_resampled = smote.fit_resample(X, Y)
 cv_results_vc = cross_validate(voting_clf, X_resampled, y_resampled, cv=5, scoring=scoring)
 y_pred_vc = cross_val_predict(voting_clf, X_resampled, y_resampled, cv=5)
 
-# Ergebnisse Naive Bayes
+# results Naive Bayes
 print("Naive Bayes Ergebnisse:")
 print(f"Precision: {cv_results_nb['test_precision_macro'].mean():.4f}")
 print(f"Recall: {cv_results_nb['test_recall_macro'].mean():.4f}")
 print(f"F1 Score: {cv_results_nb['test_f1_macro'].mean():.4f}")
 
-# Ergebnisse CatBoost
-print("CatBoost Ergebnisse:")  # <-- Ausgabe der Ergebnisse von CatBoost
+# results CatBoost
+print("CatBoost Ergebnisse:")  
 print(f"Precision: {cv_results_catboost['test_precision_macro'].mean():.4f}")
 print(f"Recall: {cv_results_catboost['test_recall_macro'].mean():.4f}")
 print(f"F1 Score: {cv_results_catboost['test_f1_macro'].mean():.4f}")
 
-# Ergebnisse CatBoost
-print("VotingClassifier Ergebnisse:")  # <-- Ausgabe der Ergebnisse von CatBoost
+# results VotingClassifier 
+print("VotingClassifier Ergebnisse:")  
 print(f"Precision: {cv_results_vc['test_precision_macro'].mean():.4f}")
 print(f"Recall: {cv_results_vc['test_recall_macro'].mean():.4f}")
 print(f"F1 Score: {cv_results_vc['test_f1_macro'].mean():.4f}")
