@@ -1,14 +1,18 @@
 import pandas as pd
 import numpy as np
-from sklearn.ensemble import RandomForestClassifier, VotingClassifier
+from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier, StackingClassifier, VotingClassifier
+from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import KFold
 from sklearn.metrics import f1_score, precision_score, recall_score
 from gensim.models import Word2Vec
 from sklearn.feature_extraction.text import TfidfVectorizer
 import nltk
+from sklearn.svm import SVC
 from sklearn.utils.class_weight import compute_class_weight
 from xgboost import XGBClassifier
 from catboost import CatBoostClassifier
+import lightgbm as lgb
+from sklearn.naive_bayes import GaussianNB, MultinomialNB
 
 # NLTK vorbereiten
 nltk.download('punkt')
@@ -28,13 +32,13 @@ additional_tweets = additional_data['Tweet']
 additional_labels = additional_data.iloc[:, 1:]
 
 # Bereinigung: Entferne Leerzeichen und konvertiere zu Integer
-labels = labels.applymap(lambda x: int(str(x).strip().lower() in ['1', 'true']))
+labels = labels.map(lambda x: int(str(x).strip().lower() in ['1', 'true']))
 # Bereinigung: NaN-Werte in Textdaten entfernen
 tweets = tweets.fillna('')  # NaN-Werte durch leere Strings ersetzen
 tweets = tweets.astype(str)  # Sicherstellen, dass alle Werte Strings sind
 
 # Bereinigung: Entferne Leerzeichen und konvertiere zu Integer
-additional_labels = additional_labels.applymap(lambda x: int(str(x).strip().lower() in ['1', 'true']))
+additional_labels = additional_labels.map(lambda x: int(str(x).strip().lower() in ['1', 'true']))
 # Bereinigung: NaN-Werte in Textdaten entfernen
 additional_tweets = additional_tweets.fillna('')  # NaN-Werte durch leere Strings ersetzen
 additional_tweets = additional_tweets.astype(str)  # Sicherstellen, dass alle Werte Strings sind
@@ -119,15 +123,17 @@ for fold, (train_index, test_index) in enumerate(kf.split(X_combined)):
         class_weights_dict = {i: weight for i, weight in enumerate(class_weights)}
         
         # VotingClassifier initialisieren
-        voting_clf = VotingClassifier(estimators=[
-            ('rf', RandomForestClassifier(n_estimators=200, random_state=42, class_weight="balanced")),
-            ('xgb', XGBClassifier(n_estimators=200, random_state=42, scale_pos_weight=class_weights[1])),
-            ('catboost', CatBoostClassifier(iterations=200, verbose=0, class_weights=class_weights))
-        ], voting='soft')
+        stacking_clf = StackingClassifier(estimators=[
+                ('rf', RandomForestClassifier(n_estimators=200, random_state=42, class_weight="balanced")),
+                ('svc', SVC(kernel='linear', probability=True)),
+                ('nb', GaussianNB()),
+            ], 
+            final_estimator=GaussianNB(),
+            cv=5)
         
         # Modell trainieren
-        voting_clf.fit(X_train, y_train[label])
-        y_pred = voting_clf.predict(X_test)
+        stacking_clf.fit(X_train, y_train[label])
+        y_pred = stacking_clf.predict(X_test)
         y_pred_combined[:, labels.columns.get_loc(label)] = y_pred
     
     # F1-Scores und Metriken berechnen
