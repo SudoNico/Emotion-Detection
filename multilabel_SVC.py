@@ -11,15 +11,9 @@ from sklearn.svm import SVC
 data = pd.read_csv('/Users/chanti/Desktop/5. Semester/Softwareprojekt/Code/Emotion-Detection/intermediate_results/preprocessed_results_ems.txt', sep=',', header=None)
 data.columns = ['Tweet'] + [f'Label{i+1}' for i in range(9)]  # Spalten benennen
 
-#additional_data = pd.read_csv('/Users/chanti/Desktop/5. Semester/Softwareprojekt/Code/Emotion-Detection/intermediate_results/preprocessed_results_GoldStandardGerman.txt', sep=',', header=None)
-#additional_data.columns = ['Tweet'] + [f'Label{i+1}' for i in range(9)]  # Gleiche Spaltennamen
-
 # Tweets und Labels extrahieren
 tweets = data['Tweet']
 labels = data.iloc[:, 1:]
-
-#additional_tweets = additional_data['Tweet']
-#additional_labels = additional_data.iloc[:, 1:]
 
 # Bereinigung: NaN-Werte in Textdaten entfernen
 tweets = tweets.fillna('')  # NaN-Werte durch leere Strings ersetzen
@@ -28,7 +22,6 @@ tweets = tweets.astype(str)  # Sicherstellen, dass alle Werte Strings sind
 # Textdaten vektorisieren
 vectorizer = TfidfVectorizer(max_features=1000)  # Begrenze die Anzahl der Features
 X = vectorizer.fit_transform(tweets)  # Numerische Repräsentation der Texte
-#X_additional = vectorizer.transform(additional_tweets)
 
 # KFold initialisieren
 kf = KFold(n_splits=10, shuffle=True, random_state=42)  # 10-fold Cross Validation
@@ -46,10 +39,6 @@ for fold, (train_index, test_index) in enumerate(kf.split(X)):
     # Train- und Testdaten aufteilen
     X_train, X_test = X[train_index], X[test_index]
     y_train, y_test = labels.iloc[train_index], labels.iloc[test_index]
-    
-    # Zusätzliche Daten zum Trainingsset hinzufügen
-   #X_train = vstack([X[train_index], X_additional])
-    #y_train = pd.concat([y_train, additional_labels], ignore_index=True)
     
     X_train_dense = X_train.toarray()
     
