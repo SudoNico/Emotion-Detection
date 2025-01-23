@@ -21,17 +21,31 @@ nltk.download('punkt')
 data = pd.read_csv('/Users/chanti/Desktop/5. Semester/Softwareprojekt/Code/Emotion-Detection/intermediate_results/preprocessed_results_ems.txt', sep=',', header=None)
 data.columns = ['Tweet'] + [f'Label{i+1}' for i in range(9)] 
 
-# Tweets und Labels extrahieren
+#doing the same for our own additional annotated wordlist ("GoldstandardGerman)"
+additional_data = pd.read_csv('/Users/chanti/Desktop/5. Semester/Softwareprojekt/Code/Emotion-Detection/intermediate_results/preprocessed_results_GoldStandardGerman.txt', sep=',', header=None)
+additional_data.columns = ['Tweet'] + [f'Label{i+1}' for i in range(9)]  
+
+# extracting tweets and labels for the additional wordlist
 tweets = data['Tweet']
 labels = data.iloc[:, 1:]
 
+# extracting tweets and labels for the 
+additional_tweets = additional_data['Tweet']
+additional_labels = additional_data.iloc[:, 1:]
+
 # removal of spaces and converting them into integer-values (1 is ture, 0 false)
 labels = labels.map(lambda x: int(str(x).strip().lower() in ['1', 'true']))
-
 # removal of non-number-values and substituting them with empty strings
 tweets = tweets.fillna('') 
 # resolving all values left into strings 
 tweets = tweets.astype(str)  
+
+# removal of spaces and converting them into integer-values (1 is ture, 0 false) in the additional wordlist
+additional_labels = additional_labels.map(lambda x: int(str(x).strip().lower() in ['1', 'true']))
+# # removal of non-number-values and substituting them with empty strings
+additional_tweets = additional_tweets.fillna('') 
+# resolving all values left into strings 
+additional_tweets = additional_tweets.astype(str)  
 
 # calculating TF-IDF by initialising a TF-IDF Vector that accepts gets tokenized directly
 tfidf_vectorizer = TfidfVectorizer(analyzer=lambda x: x, token_pattern=None)
@@ -64,12 +78,21 @@ def get_tfidf_weighted_word2vec(tokens, model, tfidf_vocab, tfidf_matrix, index,
         vector /= valid_words 
     return vector
 
-#  calculating the weighted Word2Vec-Features for all tweets
+#  calculating the TF-IDF-weighted Word2Vec-Features for all tweets
 X_combined = np.array([
     get_tfidf_weighted_word2vec(tokens, word2vec_model, tfidf_vocab, tfidf_matrix, i)
     for i, tokens in enumerate(tweets)
 ])
 
+# calculating TF-IDF for the additional wordlist
+additional_tfidf_matrix = tfidf_vectorizer.fit_transform(additional_tweets)
+tfidf_vocab = tfidf_vectorizer.vocabulary_
+# training the Word2Vec-Modell with the additional wordlist
+additional_word2vec_model = Word2Vec(sentences=additional_tweets, vector_size=100, window=5, min_count=1, workers=4)
+additional_X_combined = np.array([
+    get_tfidf_weighted_word2vec(tokens, additional_word2vec_model, tfidf_vocab, additional_tfidf_matrix, i)
+    for i, tokens in enumerate(additional_tweets)
+])
 
 # Initialising KFold with a 10x K-Fold-Cross-Validation with a random permutation and a fixed seed
 kf = KFold(n_splits=10, shuffle=True, random_state=42)
@@ -92,6 +115,8 @@ for fold, (train_index, test_index) in enumerate(kf.split(X_combined)):
     # splitting data into train- and testdata
     X_train, X_test = X_combined[train_index], X_combined[test_index]
     y_train, y_test = labels.iloc[train_index], labels.iloc[test_index]
+    X_train = np.vstack([X_train, additional_X_combined])
+    y_train = pd.concat([y_train, additional_labels], ignore_index=True)
     
     # initialising an array for predicting
     y_pred_combined = np.zeros_like(y_test)
