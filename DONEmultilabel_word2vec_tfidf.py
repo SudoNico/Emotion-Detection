@@ -29,7 +29,7 @@ additional_data.columns = ['Tweet'] + [f'Label{i+1}' for i in range(9)]
 tweets = data['Tweet']
 labels = data.iloc[:, 1:]
 
-# extracting tweets and labels for the 
+# extracting tweets and labels for the additional wordlist
 additional_tweets = additional_data['Tweet']
 additional_labels = additional_data.iloc[:, 1:]
 
