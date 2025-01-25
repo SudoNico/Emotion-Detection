@@ -1,4 +1,5 @@
 # This script creates and trains a Multi-Label Classification System, for which we decided on a StackingClassifier using TF-IDF and Word2Vec as input features 
+
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier, StackingClassifier
@@ -126,7 +127,7 @@ for fold, (train_index, test_index) in enumerate(kf.split(X_combined)):
         
         # initialising a stacking classifier containing a RandomForrest-, SVC(linear kernel)- and naive bayes-component
         stacking_clf = StackingClassifier(estimators=[
-                ('rf', RandomForestClassifier(n_estimators=200, random_state=42, class_weight="balanced")),
+                ('rf', RandomForestClassifier(n_estimators=200, random_state=42, class_weight="balanced")), # 200 trees, balancing the class weights 
                 ('svc', SVC(kernel='linear', probability=True)),
                 ('nb', GaussianNB()),
             ], 
