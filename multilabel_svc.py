@@ -1,3 +1,4 @@
+# This script trains a Multi-Label Classfication System, namely a SVM model
 import pandas as pd
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -24,7 +25,7 @@ vectorizer = TfidfVectorizer(max_features=1000)  # limit number of features to 1
 X = vectorizer.fit_transform(tweets)  # numeric representation of the tweet texts
 
 # KFold initiation
-kf = KFold(n_splits=10, shuffle=True, random_state=42) # 10 cross fold validation
+kf = KFold(n_splits=10, shuffle=True, random_state=42) # 10 cross fold validation; shuffling the data before splitting it 
 
 # lists for results for the metrics: precision, recall, macro f1, micro f1, weighted f1
 label_metrics = {label: {'precision': [], 'recall': [], 'f1_macro': [], 'f1_micro': [], 'f1_weighted': []} for label in labels.columns}
@@ -43,13 +44,13 @@ for fold, (train_index, test_index) in enumerate(kf.split(X)):
     
     X_train_dense = X_train.toarray()
     
-    # scale data
-    scaler = MaxAbsScaler() # Sparse-Matrix
+     # scaling data into a value between [-1,1]
+    scaler = MaxAbsScaler() # Sparse matrix (which was created by using TF-IDF) remains
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
     
     # create a model for c-support vector classification
-    model = SVC(kernel='linear', probability=True)
+    model = SVC(kernel='linear', probability=True) 
     y_pred_combined = np.zeros_like(y_test) # array for combined predictions
     
     # prediction for every label
