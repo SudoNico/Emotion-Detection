@@ -1,3 +1,4 @@
+# This script creates and trains a Multi-Label Classification System, for which we decided on RandomForest using TF-IDF as the input feature
 import pandas as pd
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -55,13 +56,13 @@ for fold, (train_index, test_index) in enumerate(kf.split(X)):
     
     X_train_dense = X_train.toarray()
     
-    # scale data
-    scaler = MaxAbsScaler() # Sparse matrix
+    # scaling data into a value between [-1,1]
+    scaler = MaxAbsScaler() # Sparse matrix (which was created by using TF-IDF) remains
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
     
     # create a random forest classifier model
-    model = RandomForestClassifier(n_estimators=100, random_state=42)
+    model = RandomForestClassifier(n_estimators=100, random_state=42) # number of trees = 100; random_state so we get the same result every time (any constant number can be used) 
     y_pred_combined = np.zeros_like(y_test)  # array for combined predictions
 
     # prediction for every label
