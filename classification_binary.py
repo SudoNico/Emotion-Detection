@@ -21,7 +21,7 @@ labels = []
 
 # load the preprocessed tweets and their corresponding labels (emotion yes/no) from the file
 # file should have one tweet per line in the format: "tweet_text,label"
-with open("Path to preprocessed_results_emo", "r", encoding="utf-8") as file:
+with open('preprocessed_results_emo', "r", encoding="utf-8") as file:
     for line in file:
         try:
             tweet, label = line.rsplit(",", 1)  # Splitting the preprocessed tweets because the labels are after the last comma
