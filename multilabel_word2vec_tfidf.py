@@ -1,28 +1,24 @@
+# This script creates and trains a Multi-Label Classification System, for which we decided on a StackingClassifier using TF-IDF and Word2Vec as input features 
 import pandas as pd
 import numpy as np
-from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier, StackingClassifier, VotingClassifier
-from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier, StackingClassifier
 from sklearn.model_selection import KFold
 from sklearn.metrics import f1_score, precision_score, recall_score
 from gensim.models import Word2Vec
 from sklearn.feature_extraction.text import TfidfVectorizer
 import nltk
 from sklearn.svm import SVC
-from sklearn.utils.class_weight import compute_class_weight
-from xgboost import XGBClassifier
-from catboost import CatBoostClassifier
-import lightgbm as lgb
-from sklearn.naive_bayes import GaussianNB, MultinomialNB
+from sklearn.naive_bayes import GaussianNB
 
 # prepares the NLTK download of ressources
 nltk.download('punkt')
 
 # loading the data and initialises that the first column is the text, the others are labels 
-data = pd.read_csv('/Users/chanti/Desktop/5. Semester/Softwareprojekt/Code/Emotion-Detection/intermediate_results/preprocessed_results_ems.txt', sep=',', header=None)
+data = pd.read_csv('preprocessed_results_ems.txt', sep=',', header=None)
 data.columns = ['Tweet'] + [f'Label{i+1}' for i in range(9)] 
 
 #doing the same for our own additional annotated wordlist ("GoldstandardGerman)"
-additional_data = pd.read_csv('/Users/chanti/Desktop/5. Semester/Softwareprojekt/Code/Emotion-Detection/intermediate_results/preprocessed_results_GoldStandardGerman.txt', sep=',', header=None)
+additional_data = pd.read_csv('preprocessed_results_GoldStandardGerman.txt', sep=',', header=None)
 additional_data.columns = ['Tweet'] + [f'Label{i+1}' for i in range(9)]  
 
 # extracting tweets and labels for the additional wordlist
@@ -57,6 +53,7 @@ tfidf_vocab = tfidf_vectorizer.vocabulary_
 word2vec_model = Word2Vec(sentences=tweets, vector_size=100, window=5, min_count=1, workers=4)
 
 # calculating the TF-IDF weighted Word2Vec-Vectors
+# source for combining TF-IDF and Word2Vec and calculating Word2Vec for the whole tweet: ChatGPT
 def get_tfidf_weighted_word2vec(tokens, model, tfidf_vocab, tfidf_matrix, index, vector_size=100):
     #initialising zero-vector and matching the TF-IDF-values to the current tweet
     vector = np.zeros(vector_size)
@@ -86,7 +83,6 @@ X_combined = np.array([
 
 # calculating TF-IDF for the additional wordlist
 additional_tfidf_matrix = tfidf_vectorizer.fit_transform(additional_tweets)
-tfidf_vocab = tfidf_vectorizer.vocabulary_
 # training the Word2Vec-Modell with the additional wordlist
 additional_word2vec_model = Word2Vec(sentences=additional_tweets, vector_size=100, window=5, min_count=1, workers=4)
 additional_X_combined = np.array([
@@ -136,7 +132,7 @@ for fold, (train_index, test_index) in enumerate(kf.split(X_combined)):
             ], 
             final_estimator=RandomForestClassifier(n_estimators=200, random_state=42, class_weight="balanced"),
             passthrough=True,
-            # Cross-Validation here with 5 folds
+            # Cross-Validation here with 5 folds within the StackingClassifier 
             cv=5)
         
         # training the modell
