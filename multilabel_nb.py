@@ -1,3 +1,6 @@
+# This script creates and trains our baseline Multi-Label Classification System, for which we decided on Multinominal Naive Bayes using TF-IDF as the input feature
+# Source: ChatGPT
+# our other scripts for Multi-Label Classification were strongly inspired by this one, we mainly changed the algorithms using the online documentation for help 
 import pandas as pd
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -8,92 +11,94 @@ from sklearn.preprocessing import MaxAbsScaler
 from scipy.sparse import vstack
 
 
-# 1. Daten einlesen und vorbereiten
-data = pd.read_csv('/Users/chanti/Desktop/5. Semester/Softwareprojekt/Code/Emotion-Detection/intermediate_results/preprocessed_results_ems.txt', sep=',', header=None)
-data.columns = ['Tweet'] + [f'Label{i+1}' for i in range(9)]  # Spalten benennen
+# read the results from the preprocessing of the annotated tweets of the data ems.csv
+data = pd.read_csv('preprocessed_results_ems.txt', sep=',', header=None)
+data.columns = ['Tweet'] + [f'Label{i+1}' for i in range(9)] # define column names
 
-# Tweets und Labels extrahieren
+
+# extracting the tweets (=content) and labels (=emotions) from the text
 tweets = data['Tweet']
 labels = data.iloc[:, 1:]
 
-# Bereinigung: NaN-Werte in Textdaten entfernen
-tweets = tweets.fillna('')  # NaN-Werte durch leere Strings ersetzen
-tweets = tweets.astype(str)  # Sicherstellen, dass alle Werte Strings sind
+# remove all NaN-Values
+tweets = tweets.fillna('')  # replace NaN-values with empty strings
+tweets = tweets.astype(str)  # turn every tweet into a string
 
-# Textdaten vektorisieren
-vectorizer = TfidfVectorizer(max_features=1000)  # Begrenze die Anzahl der Features
-X = vectorizer.fit_transform(tweets)  # Numerische Repräsentation der Texte
+# vectorize the text data 
+vectorizer = TfidfVectorizer(max_features=1000)  # limit number of features to 1000
+X = vectorizer.fit_transform(tweets)  # numeric representation of the tweet texts
 
-# KFold initialisieren
-kf = KFold(n_splits=10, shuffle=True, random_state=42)  # 10-fold Cross Validation
+# KFold initiation
+kf = KFold(n_splits=10, shuffle=True, random_state=42) # 10 cross fold validation; shuffling the data before splitting it 
 
-# Ergebnis-Listen für Metriken
+# lists for results for the metrics: precision, recall, macro f1, micro f1, weighted f1
 label_metrics = {label: {'precision': [], 'recall': [], 'f1_macro': [], 'f1_micro': [], 'f1_weighted': []} for label in labels.columns}
 combined_metrics = {'precision': [], 'recall': [], 'f1_macro': [], 'f1_micro': [], 'f1_weighted': []}
 
+# list with the names of the emotions matching the order of the columns in the annotated data
 emotions = ['anger', 'fear', 'surprise', 'sadness', 'joy', 'disgust', 'envy', 'jealousy', 'other']
 
-# 2. Cross-Validation-Schleife
+# 10 times loop (for every fold of the Cross Validation)
 for fold, (train_index, test_index) in enumerate(kf.split(X)):
     print(f"Fold {fold + 1}")
     
-    # Train- und Testdaten aufteilen
+    # split the vectorized data in training and testing data for the model
     X_train, X_test = X[train_index], X[test_index]
     y_train, y_test = labels.iloc[train_index], labels.iloc[test_index]
     
     X_train_dense = X_train.toarray()
     
-    # Daten skalieren
-    scaler = MaxAbsScaler() # Sparse-Matrix
+    # scaling data into a value between [-1,1]
+    scaler = MaxAbsScaler() # Sparse matrix remains
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
     
-    # Modell für jedes Label trainieren
+    # creating and training the model 
     model = MultinomialNB()
-    y_pred_combined = np.zeros_like(y_test)  # Array für kombinierte Vorhersagen
+    y_pred_combined = np.zeros_like(y_test)  # array for combined predictions 
 
-    # Vorhersagen für jedes Label
+    # predicitions for each label 
     for i, label in enumerate(labels.columns):
-        emotion_name = emotions[i]  # Hole den Namen der Emotion aus der Liste
+        emotion_name = emotions[i] 
         print(f"Training für Label: {emotion_name}")
         model.fit(X_train, y_train[label])
 
-        # Vorhersage
+        
         y_pred = model.predict(X_test)
         y_pred_combined[:, labels.columns.get_loc(label)] = y_pred
 
-        # Metriken für jedes Label berechnen
+        # calculate the metrics precision, recall, macro f1, micro f1 and weighted f1 for every label
         precision_macro = precision_score(y_test.iloc[:, labels.columns.get_loc(label)], y_pred, average='macro', zero_division=0)
         recall_macro = recall_score(y_test.iloc[:, labels.columns.get_loc(label)], y_pred, average='macro', zero_division=0)
         f1_macro = f1_score(y_test.iloc[:, labels.columns.get_loc(label)], y_pred, average='macro', zero_division=0)
         f1_micro = f1_score(y_test.iloc[:, labels.columns.get_loc(label)], y_pred, average='micro', zero_division=0)
         f1_weighted = f1_score(y_test.iloc[:, labels.columns.get_loc(label)], y_pred, average='weighted', zero_division=0)
 
-        # Speichern der Metriken für das Label
+        # save metrics for every label in arrays
         label_metrics[label]['precision'].append(precision_macro)
         label_metrics[label]['recall'].append(recall_macro)
         label_metrics[label]['f1_macro'].append(f1_macro)
         label_metrics[label]['f1_micro'].append(f1_micro)
         label_metrics[label]['f1_weighted'].append(f1_weighted)
 
-    # NEUER CODE: Kombinierte Metriken berechnen
+    # get the mean value of the metrics in arrays
     combined_precision = np.mean([precision_score(y_test.iloc[:, label_idx], y_pred_combined[:, label_idx], average='macro', zero_division=0) for label_idx in range(y_test.shape[1])])
     combined_recall = np.mean([recall_score(y_test.iloc[:, label_idx], y_pred_combined[:, label_idx], average='macro', zero_division=0) for label_idx in range(y_test.shape[1])])
     combined_f1_macro = np.mean([f1_score(y_test.iloc[:, label_idx], y_pred_combined[:, label_idx], average='macro', zero_division=0) for label_idx in range(y_test.shape[1])])
     combined_f1_micro = np.mean([f1_score(y_test.iloc[:, label_idx], y_pred_combined[:, label_idx], average='micro', zero_division=0) for label_idx in range(y_test.shape[1])])
     combined_f1_weighted = np.mean([f1_score(y_test.iloc[:, label_idx], y_pred_combined[:, label_idx], average='weighted', zero_division=0) for label_idx in range(y_test.shape[1])])
 
-    # Speichern der kombinierten Metriken
+    # save combined metrics 
     combined_metrics['precision'].append(combined_precision)
     combined_metrics['recall'].append(combined_recall)
     combined_metrics['f1_macro'].append(combined_f1_macro)
     combined_metrics['f1_micro'].append(combined_f1_micro)
     combined_metrics['f1_weighted'].append(combined_f1_weighted)
 
-# 3. Zusammenfassung der Ergebnisse nach allen Folds
+# print out the metric results
 print("\nZusammenfassung der Metriken über alle Folds:")
 
-# Ergebnisse für jedes Label
+# results for every label
 for label in labels.columns:
     print(f"\nMetriken für Label {label}:")
     print(f"  Precision (Macro): {np.mean(label_metrics[label]['precision']):.4f} ± {np.std(label_metrics[label]['precision']):.4f}")
@@ -102,7 +107,7 @@ for label in labels.columns:
     print(f"  F1-Score (Micro): {np.mean(label_metrics[label]['f1_micro']):.4f} ± {np.std(label_metrics[label]['f1_micro']):.4f}")
     print(f"  F1-Score (Weighted): {np.mean(label_metrics[label]['f1_weighted']):.4f} ± {np.std(label_metrics[label]['f1_weighted']):.4f}")
 
-# Zusammenfassende Ergebnisse für das Gesamtsystem
+# summarised results for the entire system
 print("\nGesamte Modellmetriken über alle Folds:")
 print(f"  Macro Precision: {np.mean(combined_metrics['precision']):.4f} ± {np.std(combined_metrics['precision']):.4f}")
 print(f"  Macro Recall: {np.mean(combined_metrics['recall']):.4f} ± {np.std(combined_metrics['recall']):.4f}")
