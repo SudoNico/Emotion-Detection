@@ -1,4 +1,4 @@
-# This script creates and trains a Multi-Label Classification System, for which we decided on RandomForest using TF-IDF as the input feature
+# This script creates and trains a Multi-Label Classification System, for which we decided on RandomForest using TF-IDF as the input feature, we also included another dataset for training 
 # inspired by code multilabel_nb
 
 import pandas as pd
