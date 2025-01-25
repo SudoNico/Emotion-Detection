@@ -1,6 +1,7 @@
 # This script creates and trains our baseline Multi-Label Classification System, for which we decided on Multinominal Naive Bayes using TF-IDF as the input feature
 # Source: ChatGPT
 # our other scripts for Multi-Label Classification were strongly inspired by this one, we mainly changed the algorithms using the online documentation for help 
+
 import pandas as pd
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
