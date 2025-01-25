@@ -1,5 +1,6 @@
 # this code preprocesses our data for future use in classification 
 # we want to -> correct the spelling, remove punctuation, normalize all links, remove stopwords, tokenize our text and lemmatize it 
+
 import pandas as pd 
 import nltk as nl 
 from nltk.tokenize import word_tokenize, wordpunct_tokenize 
