@@ -1,4 +1,6 @@
 # This script creates and trains a Multi-Label Classification System, for which we decided on RandomForest using TF-IDF as the input feature
+# inspired by code multilabel_nb
+
 import pandas as pd
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
