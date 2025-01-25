@@ -31,8 +31,8 @@ tweets = tweets.astype(str)  # turn every tweet into a string
 
 # vectorize the text data
 vectorizer = TfidfVectorizer(max_features=1000)  # limit number of features to 1000
-X = vectorizer.fit_transform(tweets)  # numeric representation of the tweet texts
-X_additional = vectorizer.transform(additional_tweets)
+X = vectorizer.fit_transform(tweets)  # learning the vocabulary and transforming the data into numerical features at the same time
+X_additional = vectorizer.transform(additional_tweets) # uses the existing vocabulary learned from the training data to transorm our additional data into numerical features 
 
 # KFold initiation
 kf = KFold(n_splits=10, shuffle=True, random_state=42)  # 10 cross fold validation
