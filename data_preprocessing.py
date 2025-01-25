@@ -1,5 +1,5 @@
-
-#import of all necessary librarys
+# this code preprocesses our data for future use in classification 
+# we want to -> correct the spelling, remove punctuation, normalize all links, remove stopwords, tokenize our text and lemmatize it 
 import pandas as pd 
 import nltk as nl 
 from nltk.tokenize import word_tokenize, wordpunct_tokenize 
@@ -11,7 +11,7 @@ import emoji
 import csv
 
 
-# Spelling correction
+# Spelling correction using LanguageTool (needs to be installed beforehand) 
 tool = language_tool_python.LanguageTool('de-DE')
 def spellingCorrection(text, tool): 
     # checking the text for errors
@@ -37,16 +37,16 @@ def removeEmoji(text):
 def urlToLink(text):
     # using the reg expression for URLs to identify them
     url_pattern = r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
-    # replaces found URLs with the string "Link"
+    # replacing found URLs with the string "Link"
     result = re.sub(url_pattern, " Link ", text)
     return result
 
 # Removal of stop words from the tokenized text
 def removeStopwords():
-    # compares the text to a list of german stop words
+    # comparing the text to a list of german stop words
     nltk_stopwords = set(stopwords.words('german'))
     filtered_text = []
-    # if the word isn't a stop word, it gets addes to a non-stop-word-list
+    # if the word isn't a stop word, it gets added to a non-stop-word-list
     for w in tokens:
         if w not in nltk_stopwords:
             filtered_text.append(w)
@@ -68,20 +68,20 @@ def lemmatizingText():
 
 # writes the data to the file and joins the preprocessed words with a label for the binary classification
 def writingFile(text, label):
-    with open('/Users/chanti/Desktop/5. Semester/Softwareprojekt/Code/Emotion-Detection/intermediate_results/preprocessed_results_2.txt', 'a', encoding='utf-8') as f:
+    with open('preprocessed_results_2.txt', 'a', encoding='utf-8') as f:
         f.write(' '.join(text) + ', ' + label + '\n') 
 
 # writes the data to the file and joins the preprocessed words with a multiple labels for the multilabel classification
 def writingFile2(text, label1, label2, label3, label4, label5, label6, label7, label8, label9):
-    with open('/Users/chanti/Desktop/5. Semester/Softwareprojekt/Code/Emotion-Detection/intermediate_results/preprocessed_results.txt', 'a', encoding='utf-8') as f:
+    with open('preprocessed_results.txt', 'a', encoding='utf-8') as f:
         f.write(' '.join(text) + ', ' + label1 + ', ' + label2 + ', ' + label3 + ', ' + label4 + ', ' + label5 + ', ' + label6 + ', ' + label7 + ', ' + label8 + ', ' + label9 + '\n')  # Join the words with spaces and write to file
 
-# 1) preprocessing for binary classification, if the preprocessing for multilabel classification is below
+# 1) preprocessing for binary classification, the preprocessing for multilabel classification is below
 # since we used the preprocessing last for the multilabel system the code for the binary classification is commented out and therefore disabled
 # if preprocessing is desired for a binary classification please enable this section and disable the section below
 
 # loading the csv data file
-#data = pd.read_csv('/Users/chanti/Desktop/5. Semester/Softwareprojekt/Code/Emotion-Detection/Annotierte Tweets/emo.csv', delimiter=';' ,encoding='utf-8')
+#data = pd.read_csv('emo.csv', delimiter=';' ,encoding='utf-8')
 
 # iterates through the file and preprocesses the text according to the methods above
 # for index, row in data.iterrows(): 
@@ -120,12 +120,12 @@ def writingFile2(text, label1, label2, label3, label4, label5, label6, label7, l
  
 # 2) preprocessing for multi label classification
 
-# reads the given file in a panda dataframe setting 
-data2 = pd.read_csv('/Users/chanti/Desktop/5. Semester/Softwareprojekt/Code/Emotion-Detection/Annotierte Tweets/ems.csv', delimiter=';' ,encoding='utf-8')
+# reads the given file in a panda dataframe setting; file should either ems.csv or GoldStandardGerman_annotated.csv 
+data2 = pd.read_csv('ems.csv', delimiter=';' ,encoding='utf-8')
 
 # iterates through each line and preprocesses those according to the methods above
 try:
-       for index, row in data2.iterrows(): 
+       for index, row in data2.iterrows(): # our dataset has the following structure <description>, <anger>, <fear>, <surprise> ....
         s = str(row['description'])
         a = str(row['anger'])
         f = str(row['fear'])
@@ -162,7 +162,7 @@ try:
         # transformes the text into all lowercase letters
         lower_char = [w.lower() for w in lemmatized_text]
 
-        # writes preprocesses data into a file using the template <text, emotion> with emotions being an element of [0,1]
+        # writes preprocessed data into a file using the template <text, emotion> with emotions being an element of [False,True]
         writingFile2(lower_char, a, f, su, sa, j, d, e, je, o)
 
 finally: 
