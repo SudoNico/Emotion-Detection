@@ -30,9 +30,6 @@ with open("Path to preprocessed_results_emo", "r", encoding="utf-8") as file:
         except ValueError: # catch ValueError in case a line does not follow the expected format 
             print("Fehlerhafte Zeile:", line) 
 
-# splitting the data into train (80%) and test (20%) data
-X_train, X_test, y_train, y_test = train_test_split(tweets, labels, test_size=0.2)
-
 # generating a BoW representation which represents the frequency of each word in the dataset as our feature for the first two models using CountVectorizer 
 vectorizer = CountVectorizer()
 X = vectorizer.fit_transform(tweets)  # Vectorizing all tweets
